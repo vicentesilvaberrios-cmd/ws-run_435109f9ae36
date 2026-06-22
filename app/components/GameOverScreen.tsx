@@ -21,6 +21,21 @@ export default function GameOverScreen({
   const primaryRef = useRef<HTMLButtonElement | null>(null);
   const titleId = 'game-over-title';
 
+  // Marcar el resto de la página como inert mientras el diálogo está abierto,
+  // para que lectores de pantalla no escapen del modal.
+  useEffect(() => {
+    const main = document.querySelector('main');
+    const header = document.querySelector('header');
+    const prevMainInert = main?.hasAttribute('inert') ?? false;
+    const prevHeaderInert = header?.hasAttribute('inert') ?? false;
+    main?.setAttribute('inert', '');
+    header?.setAttribute('inert', '');
+    return () => {
+      if (!prevMainInert) main?.removeAttribute('inert');
+      if (!prevHeaderInert) header?.removeAttribute('inert');
+    };
+  }, []);
+
   // Foco inicial en la acción principal
   useEffect(() => {
     primaryRef.current?.focus();
@@ -63,18 +78,7 @@ export default function GameOverScreen({
   const hadPreviousRecord = previousHighScore > 0;
 
   return (
-    <div
-      style={{
-        position: 'fixed',
-        inset: 0,
-        background: 'rgba(0, 0, 0, 0.35)',
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'center',
-        padding: 'var(--sp-4)',
-        zIndex: 50,
-      }}
-    >
+    <div className="dialog-overlay">
       <div
         ref={dialogRef}
         className="card stack fade-in"
@@ -114,24 +118,26 @@ export default function GameOverScreen({
           </div>
         </div>
 
-        <div className="stack" style={{ alignItems: 'center' }}>
+        {/* Microcopy centrado: vive en el .stack principal para alinearse con el resto */}
+        <div className="text-center">
           {isNewRecord && (
             <span className="badge badge-ok">¡Nueva mejor puntuación!</span>
           )}
 
           {isNewRecord && hadPreviousRecord && (
-            <p className="text-sm muted">
+            <p className="text-sm muted" style={{ marginTop: 'var(--sp-2)' }}>
               Tu récord anterior era {previousHighScore}.
             </p>
           )}
 
           {!hadPreviousRecord && (
-            <p className="text-sm muted">
+            <p className="text-sm muted" style={{ marginTop: 'var(--sp-2)' }}>
               Esta es tu primera partida. ¡Buen comienzo!
             </p>
           )}
         </div>
 
+        {/* Botones: btn-block en móvil (apilados a ancho completo), lado a lado en desktop vía .cluster */}
         <div
           className="cluster"
           style={{ gap: 'var(--sp-3)', justifyContent: 'center' }}
@@ -141,7 +147,6 @@ export default function GameOverScreen({
             type="button"
             className="btn btn-primary btn-block"
             onClick={onRestart}
-            style={{ flex: '1 1 auto' }}
           >
             Volver a jugar
           </button>
@@ -149,7 +154,6 @@ export default function GameOverScreen({
             type="button"
             className="btn btn-ghost btn-block"
             onClick={onBackToStart}
-            style={{ flex: '1 1 auto' }}
           >
             Volver al inicio
           </button>

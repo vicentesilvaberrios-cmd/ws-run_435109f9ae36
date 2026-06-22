@@ -27,6 +27,10 @@ export default function ScoreDisplay({
     >
       <div className="kpi" style={{ minWidth: '120px' }}>
         <span className="label">Puntos</span>
+        {/* El `key` cambia con cada nuevo `score`, lo que fuerza a React a
+            remontar este <span> y re-disparar la animación `kpi-pop`
+            definida en globals.css. Es la forma estándar de "pop al cambiar"
+            sin estado extra ni timers manuales. */}
         <span
           className="value"
           style={valueStyle}

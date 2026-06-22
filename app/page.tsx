@@ -71,8 +71,8 @@ export default function HomePage() {
 
   return (
     <>
-      <header className="navbar" role="banner">
-        <div className="cluster" style={{ gap: 'var(--sp-2)' }}>
+      <header className="navbar" role="banner" aria-label="Cabecera">
+        <div className="cluster gap-2">
           <span aria-hidden="true" style={{ fontSize: 'var(--fs-xl)' }}>🐍</span>
           <strong style={{ fontSize: 'var(--fs-lg)' }}>Snake</strong>
         </div>

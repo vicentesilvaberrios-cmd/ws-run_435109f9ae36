@@ -10,9 +10,13 @@ type Props = {
 export default function StartScreen({ highScore, onStart }: Props) {
   const buttonRef = useRef<HTMLButtonElement | null>(null);
 
-  // Foco inicial en el CTA principal
+  // Foco inicial en el CTA principal. Se ejecuta una sola vez al montar;
+  // si el padre re-monta este componente, queremos el mismo comportamiento
+  // (foco en "Jugar"), por eso no añadimos guards adicionales.
   useEffect(() => {
     buttonRef.current?.focus();
+    // Dependencia vacía intencional: solo al montar.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const hasRecord = highScore > 0;
@@ -70,7 +74,8 @@ export default function StartScreen({ highScore, onStart }: Props) {
       </button>
 
       <p className="text-sm muted">
-        Pulsa Jugar para empezar. Podrás pausar con la barra espaciadora.
+        Pulsa Jugar para empezar. Podrás pausar con la tecla{' '}
+        <kbd className="kbd" aria-label="Barra espaciadora">Espacio</kbd>.
       </p>
     </div>
   );

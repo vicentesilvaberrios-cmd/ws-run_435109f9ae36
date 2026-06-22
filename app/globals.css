@@ -177,6 +177,69 @@ h3 { font-size: var(--fs-xl); }
 .gap-2 { gap: var(--sp-2); } .gap-4 { gap: var(--sp-4); }
 .mt-4 { margin-top: var(--sp-4); } .w-full { width: 100%; }
 .sr-only { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0,0,0,0); border: 0; }
+.text-center { text-align: center; }
+
+/* ---- Teclado (affordance visual de teclas) ------------------------ */
+.kbd {
+  display: inline-block;
+  padding: 0.05rem 0.45rem;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  font-size: 0.85em;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-bottom-width: 2px;
+  border-radius: var(--radius-sm);
+  color: var(--text);
+  line-height: 1.2;
+  white-space: nowrap;
+}
+
+/* ---- Game board ---------------------------------------------------- */
+/* Tablero de Snake: tokens del design system, overflow recortado. */
+.game-board {
+  width: min(480px, 92vw);
+  aspect-ratio: 1 / 1;
+  margin-inline: auto;
+  background: var(--surface-2);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  display: grid;
+  grid-template-columns: repeat(var(--grid-size, 16), 1fr);
+  grid-template-rows: repeat(var(--grid-size, 16), 1fr);
+  padding: var(--sp-1);
+  gap: 1px;
+  position: relative;
+  overflow: hidden;
+}
+.game-board .cell { border-radius: 2px; }
+.game-board .cell-food { border-radius: 50%; background: var(--danger); }
+.game-board .cell-head { background: var(--brand-hover); }
+.game-board .cell-body { background: var(--brand); }
+
+/* ---- Controles táctiles (visibles solo sin hover + pointer coarse) */
+.touch-controls {
+  display: grid;
+  grid-template-columns: repeat(3, 56px);
+  grid-template-rows: repeat(2, 56px);
+  gap: var(--sp-2);
+  justify-content: center;
+}
+.touch-controls > .touch-spacer { display: block; }
+@media (hover: none) and (pointer: coarse) {
+  .touch-controls { display: grid !important; }
+}
+
+/* ---- Overlay de diálogo (game over, etc.) ------------------------- */
+.dialog-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.35);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: var(--sp-4);
+  z-index: 50;
+}
 
 /* ---- Animaciones sutiles (Snake) ---------------------------------- */
 @keyframes kpi-pop {

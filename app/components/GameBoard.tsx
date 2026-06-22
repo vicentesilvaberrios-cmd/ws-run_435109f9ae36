@@ -214,6 +214,8 @@ export default function GameBoard({ onGameOver, onScoreChange }: Props) {
   }, [snake, food]);
 
   const ariaLabel = `Tablero de Snake, serpiente de ${snake.length} segmentos, puntuación ${score}`;
+  const pointsAnnouncement = feedback ? `${feedback} puntos.` : '';
+  const recordAnnouncement = newRecord ? ' Nuevo récord.' : '';
 
   return (
     <div
@@ -222,46 +224,29 @@ export default function GameBoard({ onGameOver, onScoreChange }: Props) {
       aria-label={ariaLabel}
       tabIndex={0}
       onKeyDown={handleKeyDown}
-      style={{ alignItems: 'center' }}
+      style={{ alignItems: 'center', ['--grid-size' as string]: GRID_SIZE } as React.CSSProperties}
     >
       <div
         className="game-board"
         aria-label="Tablero de juego"
-        style={{
-          width: 'min(480px, 92vw)',
-          aspectRatio: '1 / 1',
-          marginInline: 'auto',
-          background: 'var(--surface-2)',
-          border: '1px solid var(--border)',
-          borderRadius: 'var(--radius)',
-          display: 'grid',
-          gridTemplateColumns: `repeat(${GRID_SIZE}, 1fr)`,
-          gridTemplateRows: `repeat(${GRID_SIZE}, 1fr)`,
-          padding: 'var(--sp-1)',
-          gap: '1px',
-          position: 'relative',
-          outline: 'none',
-        }}
       >
         {cells.map((cell, i) => {
           const isHead = cell === 'head';
           const isBody = cell === 'body';
           const isFood = cell === 'food';
-          const style: React.CSSProperties = {
-            background:
-              isHead
-                ? 'var(--brand-hover)'
-                : isBody
-                ? 'var(--brand)'
-                : isFood
-                ? 'var(--danger)'
-                : 'transparent',
-            borderRadius: isFood ? '50%' : '2px',
-          };
+          const isEmpty = cell === 'empty';
+          const className = isHead
+            ? 'cell cell-head'
+            : isBody
+            ? 'cell cell-body'
+            : isFood
+            ? 'cell cell-food'
+            : 'cell';
           return (
             <div
               key={i}
-              role={isFood ? 'img' : undefined}
+              className={className}
+              role={isEmpty ? 'presentation' : isFood ? 'img' : undefined}
               aria-label={
                 isFood
                   ? 'Comida'
@@ -269,7 +254,6 @@ export default function GameBoard({ onGameOver, onScoreChange }: Props) {
                   ? 'Cabeza de la serpiente'
                   : undefined
               }
-              style={style}
             />
           );
         })}
@@ -326,21 +310,15 @@ export default function GameBoard({ onGameOver, onScoreChange }: Props) {
         )}
       </div>
 
-      {/* Controles táctiles: solo en pantallas sin hover y pointer coarse */}
+      {/* Controles táctiles: solo en pantallas sin hover y pointer coarse (regla en globals.css) */}
       <div
         className="touch-controls"
         aria-label="Controles táctiles"
-        style={{
-          display: 'none',
-          gridTemplateColumns: 'repeat(3, 56px)',
-          gridTemplateRows: 'repeat(2, 56px)',
-          gap: 'var(--sp-2)',
-          justifyContent: 'center',
-        }}
+        style={{ display: 'none' }}
       >
-        <span aria-hidden="true" />
+        <span aria-hidden="true" className="touch-spacer" />
         <button type="button" className="btn btn-ghost" aria-label="Arriba" onClick={() => requestDirection('UP')}>↑</button>
-        <span aria-hidden="true" />
+        <span aria-hidden="true" className="touch-spacer" />
         <button type="button" className="btn btn-ghost" aria-label="Izquierda" onClick={() => requestDirection('LEFT')}>←</button>
         <button type="button" className="btn btn-ghost" aria-label="Abajo" onClick={() => requestDirection('DOWN')}>↓</button>
         <button type="button" className="btn btn-ghost" aria-label="Derecha" onClick={() => requestDirection('RIGHT')}>→</button>
@@ -350,10 +328,12 @@ export default function GameBoard({ onGameOver, onScoreChange }: Props) {
         Flechas para mover · Espacio para pausar
       </p>
 
-      {/* Anuncios para lectores de pantalla */}
+      {/* Anuncios separados para lectores de pantalla (evitar encadenamiento sin separación) */}
       <div aria-live="polite" aria-atomic="true" className="sr-only">
-        {feedback ? `${feedback} puntos` : ''}
-        {newRecord ? ' Nuevo récord.' : ''}
+        {pointsAnnouncement}
+      </div>
+      <div aria-live="polite" aria-atomic="true" className="sr-only">
+        {recordAnnouncement}
       </div>
 
       {newRecord && (
@@ -361,13 +341,6 @@ export default function GameBoard({ onGameOver, onScoreChange }: Props) {
           ¡Nuevo récord!
         </span>
       )}
-
-      {/* Bloque de media-query para controles táctiles */}
-      <style>{`
-        @media (hover: none) and (pointer: coarse) {
-          .touch-controls { display: grid !important; }
-        }
-      `}</style>
     </div>
   );
 }
