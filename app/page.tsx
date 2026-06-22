@@ -72,9 +72,9 @@ export default function HomePage() {
   return (
     <>
       <header className="navbar" role="banner" aria-label="Cabecera">
-        <div className="cluster gap-2">
-          <span aria-hidden="true" style={{ fontSize: 'var(--fs-xl)' }}>🐍</span>
-          <strong style={{ fontSize: 'var(--fs-lg)' }}>Snake</strong>
+        <div className="brand" role="img" aria-label="Snake">
+          <span className="brand__logo" aria-hidden="true">🐍</span>
+          <strong className="brand__name">Snake</strong>
         </div>
         {status === 'playing' && (
           <ScoreDisplay
@@ -92,7 +92,11 @@ export default function HomePage() {
 
         {status === 'playing' && (
           <>
-            <GameBoard onGameOver={handleGameOver} onScoreChange={setScore} />
+            <GameBoard
+              onGameOver={handleGameOver}
+              onScoreChange={setScore}
+              onExitToStart={handleBackToStart}
+            />
             <ScoreDisplay score={score} highScore={highScore} variant="wide" />
           </>
         )}

@@ -97,9 +97,24 @@ export default function GameOverScreen({
             : `Has conseguido ${score} puntos. Inténtalo de nuevo.`}
         </p>
 
+        {/* Bloque celebrativo justo tras el subtítulo (antes de los KPIs).
+            Si es la primera partida, no añadimos badge de "nueva mejor": el
+            primer resultado siempre establece récord, así que el mensaje
+            "primera partida" cubre la celebración por sí solo. */}
+        {isNewRecord && hadPreviousRecord && (
+          <div className="text-center">
+            <span className="badge badge-ok">¡Nueva mejor puntuación!</span>
+            <p className="text-sm muted" style={{ marginTop: 'var(--sp-2)' }}>
+              Tu récord anterior era {previousHighScore}.
+            </p>
+          </div>
+        )}
+
         <div
           className="cluster"
           style={{ gap: 'var(--sp-4)', justifyContent: 'center' }}
+          aria-live="polite"
+          aria-atomic="true"
         >
           <div className="kpi" style={{ minWidth: '120px' }}>
             <span className="label">Puntos</span>
@@ -118,41 +133,28 @@ export default function GameOverScreen({
           </div>
         </div>
 
-        {/* Microcopy centrado: vive en el .stack principal para alinearse con el resto */}
-        <div className="text-center">
-          {isNewRecord && (
-            <span className="badge badge-ok">¡Nueva mejor puntuación!</span>
-          )}
+        {!hadPreviousRecord && (
+          <p className="text-sm muted text-center">
+            Esta es tu primera partida. ¡Buen comienzo!
+          </p>
+        )}
 
-          {isNewRecord && hadPreviousRecord && (
-            <p className="text-sm muted" style={{ marginTop: 'var(--sp-2)' }}>
-              Tu récord anterior era {previousHighScore}.
-            </p>
-          )}
-
-          {!hadPreviousRecord && (
-            <p className="text-sm muted" style={{ marginTop: 'var(--sp-2)' }}>
-              Esta es tu primera partida. ¡Buen comienzo!
-            </p>
-          )}
-        </div>
-
-        {/* Botones: btn-block en móvil (apilados a ancho completo), lado a lado en desktop vía .cluster */}
+        {/* Botones lado a lado en desktop, ancho completo en móvil. */}
         <div
-          className="cluster"
+          className="game-over-actions"
           style={{ gap: 'var(--sp-3)', justifyContent: 'center' }}
         >
           <button
             ref={primaryRef}
             type="button"
-            className="btn btn-primary btn-block"
+            className="btn btn-primary game-over-actions__btn"
             onClick={onRestart}
           >
             Volver a jugar
           </button>
           <button
             type="button"
-            className="btn btn-ghost btn-block"
+            className="btn btn-ghost game-over-actions__btn"
             onClick={onBackToStart}
           >
             Volver al inicio

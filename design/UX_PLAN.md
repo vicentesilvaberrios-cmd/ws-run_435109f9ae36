@@ -102,7 +102,8 @@ estado del juego (`idle` | `playing` | `over`).
     para pausar".
   - **Mensaje de pausa** (overlay `.panel` centrado sobre el tablero):
     - H2 "Pausa" + texto "Pulsa espacio para continuar" + `.btn .btn-ghost`
-      "Volver al inicio".
+      "Salir de la partida" (abandona la partida actual; el récord se
+      conserva en `localStorage`).
 - **Estados**:
   - **Pausa**: overlay translúcido sobre el tablero (no `.alert`; overlay a medida
     con `var(--surface)` + `opacity .9`).

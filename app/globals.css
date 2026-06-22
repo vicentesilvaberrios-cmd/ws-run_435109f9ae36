@@ -179,6 +179,14 @@ h3 { font-size: var(--fs-xl); }
 .sr-only { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0,0,0,0); border: 0; }
 .text-center { text-align: center; }
 
+/* Marca de la app en la navbar (logo + texto) */
+.brand { display: inline-flex; align-items: center; gap: var(--sp-2); }
+.brand__logo { font-size: var(--fs-xl); line-height: 1; }
+.brand__name { font-size: var(--fs-lg); font-weight: 700; }
+
+/* Lista estilada reutilizable */
+.list { padding-left: var(--sp-5); list-style: disc; }
+
 /* ---- Teclado (affordance visual de teclas) ------------------------ */
 .kbd {
   display: inline-block;
@@ -218,7 +226,7 @@ h3 { font-size: var(--fs-xl); }
 
 /* ---- Controles táctiles (visibles solo sin hover + pointer coarse) */
 .touch-controls {
-  display: grid;
+  display: none;
   grid-template-columns: repeat(3, 56px);
   grid-template-rows: repeat(2, 56px);
   gap: var(--sp-2);
@@ -239,6 +247,19 @@ h3 { font-size: var(--fs-xl); }
   justify-content: center;
   padding: var(--sp-4);
   z-index: 50;
+}
+
+/* ---- Acciones del diálogo game over ------------------------------- */
+/* Lado a lado en desktop (≥640px), ancho completo y apiladas en móvil. */
+.game-over-actions {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-3);
+  width: 100%;
+}
+.game-over-actions__btn { width: 100%; flex: 1; }
+@media (min-width: 640px) {
+  .game-over-actions { flex-direction: row; }
 }
 
 /* ---- Animaciones sutiles (Snake) ---------------------------------- */

@@ -47,9 +47,12 @@ function initialSnake(): Point[] {
 type Props = {
   onGameOver: (finalScore: number) => void;
   onScoreChange: (score: number) => void;
+  /** Abandono explícito desde el overlay de pausa: vuelve a la pantalla de
+   *  inicio sin pasar por "game over". */
+  onExitToStart?: () => void;
 };
 
-export default function GameBoard({ onGameOver, onScoreChange }: Props) {
+export default function GameBoard({ onGameOver, onScoreChange, onExitToStart }: Props) {
   const [snake, setSnake] = useState<Point[]>(() => initialSnake());
   const [food, setFood] = useState<Point>(() => randomEmptyCell(initialSnake()));
   const [direction, setDirection] = useState<Direction>('RIGHT');
@@ -64,6 +67,7 @@ export default function GameBoard({ onGameOver, onScoreChange }: Props) {
   const pausedRef = useRef(paused);
   const scoreRef = useRef(score);
   const finishedRef = useRef(false);
+  const boardRef = useRef<HTMLDivElement | null>(null);
 
   // Mantener refs sincronizadas para que el tick no vea valores stale
   useEffect(() => { directionRef.current = direction; }, [direction]);
@@ -88,6 +92,13 @@ export default function GameBoard({ onGameOver, onScoreChange }: Props) {
     const t = window.setTimeout(() => setNewRecord(false), 2000);
     return () => window.clearTimeout(t);
   }, [newRecord]);
+
+  // Foco automático en el tablero: tras montar (Jugar/Voler a jugar) y al
+  // reanudar tras una pausa, para que el teclado funcione sin clic extra.
+  useEffect(() => {
+    if (paused || finishedRef.current) return;
+    boardRef.current?.focus();
+  }, [paused]);
 
   const finishGame = useCallback(
     (finalScore: number) => {
@@ -194,9 +205,15 @@ export default function GameBoard({ onGameOver, onScoreChange }: Props) {
   );
 
   const handleExitToStart = useCallback(() => {
-    // Abandono explícito: termina la partida con la puntuación actual
-    finishGame(scoreRef.current);
-  }, [finishGame]);
+    // Abandono explícito desde pausa: vuelve a la pantalla de inicio
+    // conservando la mejor puntuación (no termina como game over).
+    if (onExitToStart) {
+      finishedRef.current = true;
+      onExitToStart();
+    } else {
+      finishGame(scoreRef.current);
+    }
+  }, [onExitToStart, finishGame]);
 
   // Construir celdas para render
   const cells = useMemo(() => {
@@ -214,8 +231,14 @@ export default function GameBoard({ onGameOver, onScoreChange }: Props) {
   }, [snake, food]);
 
   const ariaLabel = `Tablero de Snake, serpiente de ${snake.length} segmentos, puntuación ${score}`;
-  const pointsAnnouncement = feedback ? `${feedback} puntos.` : '';
-  const recordAnnouncement = newRecord ? ' Nuevo récord.' : '';
+  // Mensajes concatenados en una única región aria-live para evitar orden
+  // arbitrario cuando ambos están activos en el mismo tick.
+  const liveAnnouncement = [
+    feedback ? `${feedback} puntos.` : '',
+    newRecord ? 'Nuevo récord.' : '',
+  ]
+    .filter(Boolean)
+    .join(' ');
 
   return (
     <div
@@ -224,12 +247,10 @@ export default function GameBoard({ onGameOver, onScoreChange }: Props) {
       aria-label={ariaLabel}
       tabIndex={0}
       onKeyDown={handleKeyDown}
-      style={{ alignItems: 'center', ['--grid-size' as string]: GRID_SIZE } as React.CSSProperties}
+      ref={boardRef}
+      style={{ alignItems: 'center', position: 'relative', ['--grid-size' as string]: GRID_SIZE } as React.CSSProperties}
     >
-      <div
-        className="game-board"
-        aria-label="Tablero de juego"
-      >
+      <div className="game-board">
         {cells.map((cell, i) => {
           const isHead = cell === 'head';
           const isBody = cell === 'body';
@@ -277,44 +298,46 @@ export default function GameBoard({ onGameOver, onScoreChange }: Props) {
             {feedback}
           </div>
         )}
-
-        {/* Overlay de pausa */}
-        {paused && !finishedRef.current && (
-          <div
-            className="fade-in"
-            style={{
-              position: 'absolute',
-              inset: 0,
-              background: 'var(--surface)',
-              opacity: 0.92,
-              display: 'flex',
-              flexDirection: 'column',
-              alignItems: 'center',
-              justifyContent: 'center',
-              gap: 'var(--sp-3)',
-              borderRadius: 'var(--radius)',
-              padding: 'var(--sp-4)',
-              textAlign: 'center',
-            }}
-          >
-            <h2 style={{ fontSize: 'var(--fs-2xl)' }}>Pausa</h2>
-            <p className="muted">Pulsa espacio para continuar</p>
-            <button
-              type="button"
-              className="btn btn-ghost"
-              onClick={handleExitToStart}
-            >
-              Volver al inicio
-            </button>
-          </div>
-        )}
       </div>
 
-      {/* Controles táctiles: solo en pantallas sin hover y pointer coarse (regla en globals.css) */}
+      {/* Overlay de pausa: vive al nivel del .card para no quedar recortado
+          por el `overflow: hidden` del tablero. */}
+      {paused && !finishedRef.current && (
+        <div
+          className="fade-in"
+          style={{
+            position: 'absolute',
+            inset: 0,
+            background: 'var(--surface)',
+            opacity: 0.92,
+            display: 'flex',
+            flexDirection: 'column',
+            alignItems: 'center',
+            justifyContent: 'center',
+            gap: 'var(--sp-3)',
+            borderRadius: 'var(--radius)',
+            padding: 'var(--sp-4)',
+            textAlign: 'center',
+            zIndex: 2,
+          }}
+        >
+          <h2 style={{ fontSize: 'var(--fs-2xl)' }}>Pausa</h2>
+          <p className="muted">Pulsa espacio para continuar</p>
+          <button
+            type="button"
+            className="btn btn-ghost"
+            onClick={handleExitToStart}
+          >
+            Salir de la partida
+          </button>
+        </div>
+      )}
+
+      {/* Controles táctiles: solo en pantallas sin hover y pointer coarse
+          (visibilidad controlada por la media-query en globals.css). */}
       <div
         className="touch-controls"
         aria-label="Controles táctiles"
-        style={{ display: 'none' }}
       >
         <span aria-hidden="true" className="touch-spacer" />
         <button type="button" className="btn btn-ghost" aria-label="Arriba" onClick={() => requestDirection('UP')}>↑</button>
@@ -328,12 +351,9 @@ export default function GameBoard({ onGameOver, onScoreChange }: Props) {
         Flechas para mover · Espacio para pausar
       </p>
 
-      {/* Anuncios separados para lectores de pantalla (evitar encadenamiento sin separación) */}
+      {/* Una única región aria-live para evitar lecturas en orden arbitrario */}
       <div aria-live="polite" aria-atomic="true" className="sr-only">
-        {pointsAnnouncement}
-      </div>
-      <div aria-live="polite" aria-atomic="true" className="sr-only">
-        {recordAnnouncement}
+        {liveAnnouncement}
       </div>
 
       {newRecord && (

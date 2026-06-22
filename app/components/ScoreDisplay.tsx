@@ -1,5 +1,7 @@
 'use client';
 
+import { useEffect, useState } from 'react';
+
 type Variant = 'wide' | 'compact';
 
 type Props = {
@@ -18,12 +20,21 @@ export default function ScoreDisplay({
     ? { fontSize: 'var(--fs-lg)' }
     : undefined;
 
+  // Anuncios para lectores de pantalla: solo cuando hay un cambio real
+  // (score > 0). Evita anunciar "Puntos: 0" al montar el componente.
+  const [announcement, setAnnouncement] = useState('');
+  useEffect(() => {
+    if (score <= 0) {
+      setAnnouncement('');
+      return;
+    }
+    setAnnouncement(`Puntos: ${score}`);
+  }, [score]);
+
   return (
     <div
       className="cluster"
       style={{ gap: 'var(--sp-4)', justifyContent: 'center' }}
-      aria-live="polite"
-      aria-atomic="true"
     >
       <div className="kpi" style={{ minWidth: '120px' }}>
         <span className="label">Puntos</span>
@@ -52,6 +63,17 @@ export default function ScoreDisplay({
         >
           {highScore > 0 ? highScore : '—'}
         </span>
+      </div>
+
+      {/* Región sr-only con aria-live solo cuando hay algo que anunciar.
+          Vacía al montar → no anuncia el estado inicial. */}
+      <div
+        aria-live="polite"
+        aria-atomic="true"
+        className="sr-only"
+        key={`announce-${score}`}
+      >
+        {announcement}
       </div>
     </div>
   );

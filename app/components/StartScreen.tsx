@@ -34,7 +34,7 @@ export default function StartScreen({ highScore, onStart }: Props) {
         <h2 id="how-to-title" style={{ fontSize: 'var(--fs-xl)' }}>
           Cómo jugar
         </h2>
-        <ul className="stack" style={{ paddingLeft: 'var(--sp-5)', listStyle: 'disc' }}>
+        <ul className="stack list">
           <li>
             Usa las <strong>flechas del teclado</strong> para mover la serpiente.
           </li>
