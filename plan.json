@@ -1,0 +1,23 @@
+{
+  "backend": [],
+  "frontend": [
+    "app/page.tsx: pantalla principal con gestión de estados (inicio/juego/game over)",
+    "app/components/GameBoard.tsx: componente de tablero con lógica de movimiento, colisiones y generación de comida",
+    "app/components/ScoreDisplay.tsx: componente para mostrar puntuación actual y máxima",
+    "app/components/StartScreen.tsx: pantalla inicial con instrucciones y botón 'Jugar'",
+    "app/components/GameOverScreen.tsx: pantalla de fin de juego con puntuación final y opción de reinicio"
+  ],
+  "acceptance_criteria": [
+    "CA1: La serpiente se mueve automáticamente cada 200ms",
+    "CA2: Las teclas de flecha cambian dirección (sin invertir dirección actual)",
+    "CA3: Nueva comida aparece en posición aleatoria al ser consumida",
+    "CA4: La serpiente crece al comer comida",
+    "CA5: Colisión con bordes o cuerpo termina el juego",
+    "CA6: Puntaje aumenta +10 por cada comida consumida",
+    "CA7: HighScore persiste en localStorage entre sesiones",
+    "CA8: Muestra puntaje actual y máximo durante el juego",
+    "CA9: Pantalla inicial muestra instrucciones básicas",
+    "CA10: Pantalla game over muestra puntuación final",
+    "CA11: Botón 'Jugar' inicia nueva partida desde cualquier estado final"
+  ]
+}
